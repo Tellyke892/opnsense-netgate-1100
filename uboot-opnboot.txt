@@ -1,0 +1,17 @@
+# U-Boot environment for booting OPNsense from the Netgate 1100 eMMC.
+# Paste at the Marvell>> prompt. The setenv opnboot line must be pasted as ONE line.
+
+setenv opnboot 'mmc dev 1; load mmc 1:1 $fdt_addr_r armada-3720-netgate-1100.dtb; fdt addr $fdt_addr_r; fdt resize 4096; fdt set / sn $serial; fdt set /soc/internal-regs/ethernet local-mac-address $ethaddr; fdt rm /soc/internal-regs@d0000000/mmc@d8000 mmc-hs400-1_8v; fdt rm /soc/internal-regs@d0000000/mmc@d8000 mmc-ddr-1_8v; fdt set /soc/internal-regs@d0000000/mmc@d8000 vqmmc-supply <0x3f>; fdt set /soc/internal-regs@d0000000/mmc@d8000 quirks <0x2000000>; load mmc 1:1 $kernel_addr_r efi/boot/bootaa64.efi; bootefi $kernel_addr_r $fdt_addr_r'
+setenv bootcmd_pfsense 'run emmcboot; run scsiboot; run net;'
+saveenv
+
+# Test first:
+run opnboot
+
+# Then make it the default:
+setenv bootcmd 'run opnboot'
+saveenv
+
+# Back to the stock (pfSense) boot command:
+# setenv bootcmd 'run emmcboot; run scsiboot; run net;'
+# saveenv
